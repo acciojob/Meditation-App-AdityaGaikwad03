@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zen Flow Meditation</title>
-    <!-- Load Tailwind CSS -->
+
+    <!-- ✅ Correct Tailwind CSS Link -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use Inter Font -->
+
+    <!-- ✅ Inter Font Import -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Hide scrollbars for the full-screen effect */
+            overflow: hidden;
         }
-        /* Custom styles for the timer circle and blending effect */
+
+        /* Background video container */
         .vid-container {
             position: absolute;
             top: 0;
@@ -23,41 +27,48 @@
             z-index: -1;
             overflow: hidden;
         }
+
         .vid-container video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: opacity 1s ease-in-out;
         }
+
         #app {
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for contrast */
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(2px);
             min-height: 100vh;
         }
+
         .player-svg {
             cursor: pointer;
             transition: transform 0.2s ease;
         }
+
         .player-svg:hover {
             transform: scale(1.05);
         }
-        /* Style for the sound picker buttons */
+
         .sound-picker button {
             transition: all 0.3s ease;
             filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
+
         .sound-picker button.active {
             box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
         }
-        /* Style for the time selection buttons */
+
         #time-select button {
             transition: background-color 0.2s, transform 0.1s;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+
         #time-select button:hover {
             transform: translateY(-2px);
             background-color: rgba(255, 255, 255, 0.1);
         }
+
         #time-select button.active {
             background-color: rgba(255, 255, 255, 0.2);
             border-color: white;
@@ -65,79 +76,66 @@
         }
 
         .spinner {
-            stroke-dasharray: 452; /* Circumference of the circle (2 * PI * 72) */
+            stroke-dasharray: 452;
             stroke-dashoffset: 452;
             transition: stroke-dashoffset 0.1s linear;
         }
     </style>
-    <!-- Load Phosphor Icons for rain/sun -->
+
+    <!-- ✅ Correct Phosphor Icons Link -->
     <script src="https://unpkg.com/phosphor-icons"></script>
 </head>
+
 <body class="bg-gray-900 text-white">
 
-    <!-- FIXED: Added class="app" for Cypress test compliance -->
     <div id="app" class="app flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
 
-        <!-- 1. Video Background Container (vid-container) -->
+        <!-- 🌊 Video Backgrounds -->
         <div class="vid-container">
-            <!-- Mock file paths provided by the user -->
             <video loop muted autoplay id="beach-video" src="Videos/beach.mp4" class="opacity-100"
-                onerror="this.style.filter='grayscale(100%) blur(10px)'; console.warn('Beach video not found. Showing placeholder.');"></video>
+                onerror="this.style.filter='grayscale(100%) blur(10px)'; console.warn('Beach video not found.');"></video>
             <video loop muted autoplay id="rain-video" src="Videos/rain.mp4" class="opacity-0 absolute top-0 left-0"
-                onerror="this.style.filter='grayscale(100%) blur(10px)'; console.warn('Rain video not found. Showing placeholder.');"></video>
+                onerror="this.style.filter='grayscale(100%) blur(10px)'; console.warn('Rain video not found.');"></video>
         </div>
 
-        <!-- 2. Player Container (Time Display & Controls) -->
+        <!-- 🧘 Player Section -->
         <div class="player-container relative flex flex-col items-center justify-center z-10 space-y-8 w-full max-w-lg">
 
-            <!-- Timer Circle / Play Button (Parent div has class="play") -->
             <div class="play relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                 <svg class="player-svg absolute top-0 left-0 w-full h-full transform -rotate-90" viewBox="0 0 150 150" fill="none">
-                    <!-- Base Circle -->
-                    <circle cx="75" cy="75" r="72" stroke="rgba(255, 255, 255, 0.2)" stroke-width="6"></circle>
-                    <!-- Progress Circle -->
+                    <circle cx="75" cy="75" r="72" stroke="rgba(255,255,255,0.2)" stroke-width="6"></circle>
                     <circle class="spinner" id="timer-spinner" cx="75" cy="75" r="72" stroke="#4c51bf" stroke-width="6" stroke-linecap="round"></circle>
                 </svg>
 
-                <!-- Play/Pause Icon inside the circle -->
-                <!-- FIXED: Removed class="play" from this button to resolve the ambiguity in cy.get(".play").click() -->
                 <button class="focus:outline-none transition-transform duration-300" aria-label="Play or Pause Meditation">
                     <svg id="play-pause-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" viewBox="0 0 256 256">
-                        <!-- Initial Play Icon (Triangle) -->
                         <path id="play-path" d="M240,128a15.7,15.7,0,0,1-7.7,13.5L88.9,235.6a16,16,0,0,1-16.1.1A15.9,15.9,0,0,1,64,222.1V33.9a15.9,15.9,0,0,1,8.8-14.9,16,16,0,0,1,16.1.1L232.3,114.5A15.7,15.7,0,0,1,240,128Z"></path>
-                        <!-- Pause Icon (Initially hidden) -->
                         <path id="pause-path" class="hidden" d="M96,48A16,16,0,0,0,80,64V192a16,16,0,0,0,32,0V64A16,16,0,0,0,96,48Zm80,0a16,16,0,0,0-16,16V192a16,16,0,0,0,32,0V64A16,16,0,0,0,176,48Z"></path>
                     </svg>
                 </button>
             </div>
 
-            <!-- Time Display -->
             <div class="time-display text-4xl font-light tracking-wider" id="time-display">10:00</div>
 
-            <!-- Audio Elements (Hidden) -->
-            <audio id="beach-sound" class="hidden" loop src="Sounds/beach.mp3"></audio>
-            <audio id="rain-sound" class="hidden" loop src="Sounds/rain.mp3"></audio>
+            <!-- Silent placeholder audio -->
+            <audio id="beach-sound" class="hidden" loop src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAAAAAA=="></audio>
+            <audio id="rain-sound" class="hidden" loop src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAAAAAA=="></audio>
 
         </div>
 
-        <!-- 3. Control Panel (Time Select & Sound Picker) -->
+        <!-- 🎛️ Control Panel -->
         <div class="controls flex flex-col md:flex-row items-center justify-center gap-6 mt-8 p-4 bg-black bg-opacity-30 rounded-xl shadow-2xl">
-
-            <!-- Time Selector -->
             <div id="time-select" class="flex flex-col space-y-2">
-                <button id="smaller-mins" data-time="120" class="px-6 py-2 rounded-full text-sm">2 Minutes</button>
-                <button id="medium-mins" data-time="300" class="px-6 py-2 rounded-full text-sm">5 Minutes</button>
-                <button id="long-mins" data-time="600" class="px-6 py-2 rounded-full text-sm active">10 Minutes</button>
+                <button data-time="120" class="px-6 py-2 rounded-full text-sm">2 Minutes</button>
+                <button data-time="300" class="px-6 py-2 rounded-full text-sm">5 Minutes</button>
+                <button data-time="600" class="px-6 py-2 rounded-full text-sm active">10 Minutes</button>
             </div>
 
-            <!-- Sound Picker -->
             <div class="sound-picker flex flex-row space-x-4">
-                <!-- Beach Mode (Sun Icon) -->
-                <button id="beach-mode" data-mode="beach" class="active w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center" aria-label="Switch to Beach Meditation">
+                <button id="beach-mode" data-mode="beach" class="active w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center">
                     <i class="ph-sun-fill text-3xl"></i>
                 </button>
-                <!-- Rain Mode (Cloud Icon) -->
-                <button id="rain-mode" data-mode="rain" class="w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center" aria-label="Switch to Rain Meditation">
+                <button id="rain-mode" data-mode="rain" class="w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center">
                     <i class="ph-cloud-rain-fill text-3xl"></i>
                 </button>
             </div>
@@ -145,243 +143,103 @@
 
     </div>
 
+    <!-- ✅ Main Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Global Variables and DOM Elements ---
-            const app = document.getElementById('app');
             const timeDisplay = document.querySelector('.time-display');
-            // Select the *div* with class 'play' which acts as the clickable area
-            const playButton = document.querySelector('.play'); 
-            const timeSelectButtons = document.querySelectorAll('#time-select button');
-            const soundPickerButtons = document.querySelectorAll('.sound-picker button');
+            const playButton = document.querySelector('.play');
+            const timeButtons = document.querySelectorAll('#time-select button');
+            const soundButtons = document.querySelectorAll('.sound-picker button');
             const spinner = document.getElementById('timer-spinner');
             const playPath = document.getElementById('play-path');
             const pausePath = document.getElementById('pause-path');
 
-            // Audio and Video Elements
             const beachSound = document.getElementById('beach-sound');
             const rainSound = document.getElementById('rain-sound');
             const beachVideo = document.getElementById('beach-video');
             const rainVideo = document.getElementById('rain-video');
 
-            // --- State Variables ---
-            let totalTime = 600; // Default to 10 minutes (600 seconds)
+            let totalTime = 600;
             let currentTime = 600;
-            let timerInterval = null;
+            let timer = null;
             let isPlaying = false;
-            let currentMode = 'beach'; // Default mode
-            const circleCircumference = 452; // 2 * PI * 72 (from SVG)
+            let mode = 'beach';
+            const circumference = 452;
 
-            // --- Utility Functions ---
-
-            // Function to format seconds into MM:SS
-            const formatTime = (seconds) => {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            const formatTime = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = s % 60;
+                return `${m}:${sec < 10 ? '0' : ''}${sec}`;
             };
 
-            // Function to update the time display and spinner
-            const updateTimeDisplay = () => {
+            const updateTime = () => {
                 timeDisplay.textContent = formatTime(currentTime);
-
-                // Calculate progress for the SVG spinner
-                const progress = currentTime / totalTime;
-                spinner.style.strokeDashoffset = circleCircumference - (progress * circleCircumference);
-
-                if (currentTime <= 0) {
-                    endMeditation();
-                }
+                spinner.style.strokeDashoffset = circumference - (currentTime / totalTime) * circumference;
+                if (currentTime <= 0) stopMeditation();
             };
 
-            // Function to update the play/pause icon
-            const updatePlayIcon = (playing) => {
-                if (playing) {
-                    playPath.classList.add('hidden');
-                    pausePath.classList.remove('hidden');
-                } else {
-                    playPath.classList.remove('hidden');
-                    pausePath.classList.add('hidden');
-                }
+            const updateIcon = (play) => {
+                playPath.classList.toggle('hidden', play);
+                pausePath.classList.toggle('hidden', !play);
             };
 
-            // Function to get the currently active media
-            const getActiveMedia = () => {
-                const sound = currentMode === 'beach' ? beachSound : rainSound;
-                const video = currentMode === 'beach' ? beachVideo : rainVideo;
-                return { sound, video };
-            };
+            const getMedia = () => mode === 'beach' ? { sound: beachSound, video: beachVideo } : { sound: rainSound, video: rainVideo };
 
-            // --- Core Logic ---
-
-            // 1. Play/Pause Functionality
             const togglePlay = () => {
-                const { sound, video } = getActiveMedia();
+                const { sound, video } = getMedia();
 
                 if (!isPlaying) {
-                    // Start Timer
-                    if (currentTime === totalTime) {
-                        sound.currentTime = 0; // Reset sound on fresh start
-                        video.currentTime = 0; // Reset video on fresh start
-                        sound.volume = 0;
-                        sound.play();
-                    } else if (currentTime <= 0) {
-                        // If timer ended, reset and play
-                        currentTime = totalTime;
-                        sound.currentTime = 0;
-                        video.currentTime = 0;
-                        sound.volume = 0;
-                        sound.play();
-                    }
-
-                    // Smooth Volume fade-in for sound
-                    let volumeFadeInterval = setInterval(() => {
-                        if (sound.volume < 0.8) {
-                            sound.volume += 0.05;
-                        } else {
-                            clearInterval(volumeFadeInterval);
-                            sound.volume = 0.8;
-                        }
-                    }, 50);
-
-
-                    // Video playback starts
-                    video.play();
-
-                    timerInterval = setInterval(() => {
+                    sound.play().catch(() => console.warn('Autoplay blocked.'));
+                    video.play().catch(() => {});
+                    timer = setInterval(() => {
                         currentTime--;
-                        updateTimeDisplay();
+                        updateTime();
                     }, 1000);
-
                     isPlaying = true;
-
                 } else {
-                    // Pause Timer
-                    clearInterval(timerInterval);
-                    timerInterval = null;
+                    clearInterval(timer);
                     sound.pause();
                     video.pause();
                     isPlaying = false;
                 }
 
-                updatePlayIcon(isPlaying);
+                updateIcon(isPlaying);
             };
 
-            // 2. Meditation Completion
-            const endMeditation = () => {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            const stopMeditation = () => {
+                clearInterval(timer);
+                const { sound } = getMedia();
+                sound.pause();
                 isPlaying = false;
-                updatePlayIcon(false);
-
-                const { sound } = getActiveMedia();
-                const video = currentMode === 'beach' ? beachVideo : rainVideo;
-
-                // Smooth Volume fade-out
-                let volumeFadeInterval = setInterval(() => {
-                    if (sound.volume > 0.05) {
-                        sound.volume -= 0.05;
-                    } else {
-                        clearInterval(volumeFadeInterval);
-                        sound.pause();
-                        sound.volume = 0;
-                    }
-                }, 50);
-
-                // Reset time for next session
                 currentTime = totalTime;
-                updateTimeDisplay();
-                video.pause();
-
-                console.log('Meditation completed!');
+                updateTime();
+                updateIcon(false);
             };
 
-            // 3. Time Selection
-            timeSelectButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const newTime = parseInt(button.dataset.time);
+            timeButtons.forEach(btn => btn.addEventListener('click', () => {
+                totalTime = parseInt(btn.dataset.time);
+                currentTime = totalTime;
+                timeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateTime();
+            }));
 
-                    // Stop and reset if time changes
-                    if (isPlaying) togglePlay();
-
-                    // Update state and display
-                    totalTime = newTime;
-                    currentTime = newTime;
-                    updateTimeDisplay();
-
-                    // Update active style
-                    timeSelectButtons.forEach(b => b.classList.remove('active'));
-                    button.classList.add('active');
-                });
-            });
-
-            // 4. Mode Switching (Sound and Video)
-            const switchMode = (newMode) => {
-                if (currentMode === newMode) return;
-
-                const wasPlaying = isPlaying;
-                if (wasPlaying) togglePlay(); // Pause current track
-
-                // Get old and new media
-                const oldSound = currentMode === 'beach' ? beachSound : rainSound;
-                const oldVideo = currentMode === 'beach' ? beachVideo : rainVideo;
-
-                currentMode = newMode;
-
-                const newSound = newMode === 'beach' ? beachSound : rainSound;
+            soundButtons.forEach(btn => btn.addEventListener('click', () => {
+                const newMode = btn.dataset.mode;
+                if (mode === newMode) return;
+                const oldVideo = mode === 'beach' ? beachVideo : rainVideo;
                 const newVideo = newMode === 'beach' ? beachVideo : rainVideo;
 
-                // Update visual mode display
-                document.getElementById('beach-mode').classList.toggle('active', newMode === 'beach');
-                document.getElementById('rain-mode').classList.toggle('active', newMode === 'rain');
+                oldVideo.classList.replace('opacity-100', 'opacity-0');
+                newVideo.classList.replace('opacity-0', 'opacity-100');
 
-                // Cross-fade the video smoothly
-                oldVideo.classList.remove('opacity-100');
-                oldVideo.classList.add('opacity-0');
-                newVideo.classList.remove('opacity-0');
-                newVideo.classList.add('opacity-100');
+                soundButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                mode = newMode;
+            }));
 
-                // Reset time display based on current selection
-                currentTime = totalTime;
-                updateTimeDisplay();
-
-                // Restart if it was playing
-                if (wasPlaying) {
-                    // Give video/audio a moment to switch visually before playing again
-                    setTimeout(() => {
-                        togglePlay();
-                    }, 500);
-                }
-            };
-
-            soundPickerButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const mode = button.dataset.mode;
-                    switchMode(mode);
-                });
-            });
-
-
-            // --- Event Listeners ---
             playButton.addEventListener('click', togglePlay);
-
-            // --- Initialization ---
-            updateTimeDisplay();
-            beachVideo.volume = 0; // Ensure videos start muted but can be controlled
-            rainVideo.volume = 0;
-            beachSound.volume = 0;
-            rainSound.volume = 0;
-
-            // Ensure only one video is visible at start (Default: Beach)
-            rainVideo.classList.add('opacity-0');
-            beachVideo.classList.remove('opacity-0');
-            document.getElementById('beach-mode').classList.add('active');
-            document.getElementById('long-mins').classList.add('active');
-            
-            // Start the videos muted and looped so they are ready for cross-fade
-            beachVideo.play().catch(e => console.log("Video Play Error (Autoplay Blocked):", e));
-            rainVideo.play().catch(e => console.log("Video Play Error (Autoplay Blocked):", e));
-
+            updateTime();
         });
     </script>
 </body>
