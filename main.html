@@ -75,7 +75,8 @@
 </head>
 <body class="bg-gray-900 text-white">
 
-    <div id="app" class="flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
+    <!-- FIXED: Added class="app" for Cypress test compliance -->
+    <div id="app" class="app flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
 
         <!-- 1. Video Background Container (vid-container) -->
         <div class="vid-container">
@@ -89,7 +90,7 @@
         <!-- 2. Player Container (Time Display & Controls) -->
         <div class="player-container relative flex flex-col items-center justify-center z-10 space-y-8 w-full max-w-lg">
 
-            <!-- Timer Circle / Play Button -->
+            <!-- Timer Circle / Play Button (Parent div has class="play") -->
             <div class="play relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                 <svg class="player-svg absolute top-0 left-0 w-full h-full transform -rotate-90" viewBox="0 0 150 150" fill="none">
                     <!-- Base Circle -->
@@ -99,7 +100,8 @@
                 </svg>
 
                 <!-- Play/Pause Icon inside the circle -->
-                <button class="play focus:outline-none transition-transform duration-300" aria-label="Play or Pause Meditation">
+                <!-- FIXED: Removed class="play" from this button to resolve the ambiguity in cy.get(".play").click() -->
+                <button class="focus:outline-none transition-transform duration-300" aria-label="Play or Pause Meditation">
                     <svg id="play-pause-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" viewBox="0 0 256 256">
                         <!-- Initial Play Icon (Triangle) -->
                         <path id="play-path" d="M240,128a15.7,15.7,0,0,1-7.7,13.5L88.9,235.6a16,16,0,0,1-16.1.1A15.9,15.9,0,0,1,64,222.1V33.9a15.9,15.9,0,0,1,8.8-14.9,16,16,0,0,1,16.1.1L232.3,114.5A15.7,15.7,0,0,1,240,128Z"></path>
@@ -148,7 +150,8 @@
             // --- Global Variables and DOM Elements ---
             const app = document.getElementById('app');
             const timeDisplay = document.querySelector('.time-display');
-            const playButton = document.querySelector('.play');
+            // Select the *div* with class 'play' which acts as the clickable area
+            const playButton = document.querySelector('.play'); 
             const timeSelectButtons = document.querySelectorAll('#time-select button');
             const soundPickerButtons = document.querySelectorAll('.sound-picker button');
             const spinner = document.getElementById('timer-spinner');
